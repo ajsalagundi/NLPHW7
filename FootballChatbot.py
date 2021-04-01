@@ -12,6 +12,80 @@ import random
 import string
 import spacy 
 
+bot_questions =
+ { 
+        '0': 'Are you a fan of the Green Bay Packers?',
+        '1': 'Would you like to hear about the latest scouting reports ?', # Insert Player's Name
+        '2': 'Have you heard about the latest free agency signings by the Green Bay Packers?',
+ }
+
+possible_user_patterns = 
+ {  # possible user responses to the questions, the keys correspond to the bot questions keys
+    '0': ['Yes', 'Yep ', 'Yup ', 'Yes I am a fan ', 'Yes I am a huge fan ', 'Yeah I like them ', 'Yeah I love them ', 'Yes I like them ' , 'Yes I love them ', 'No I hate them ', 'No I do not like them', 'No ', 'No I don\’t like them '],
+    '1': ['Yes I would ', 'Yes ', 'Sure ', 'No ', 'No thank you ', 'Yes please ', 'Nah not really interested ', 'Yeah, I’ve heard we’ve targeted placeholder. Is this true? ' , 'No, but I’m interested in learning more '],
+    '2': ['Yes I have', 'Yeah! I’ve heard we are signing placeholder. Is this true? ' , 'No, but I\’m interested in learning more ', 'Yep ', 'Yup ', 'Nope ']
+ }
+
+ppossible_bot_responses = 
+{  # possible bot responses to the user patterns, the keys correspond to the user pattern keys and the order is the same as user order
+    '0': ['That\'s great! ', 'Me too!', 'They are my favorite team too! ', 'But they are such a good team! ', 
+    'Aw, they are such a good team though :(', 'That is great!  Would you like to hear about the latest scouting reports ?'],
+    '1': ['Cool! Well, according to the latest news, the Packers are targeting {Player Y} because he’s touted for {description of scout from news article}.', 'That\'s too bad. :(',],
+    '2': ['That\'s amazing! What have you heard? ',  'That\'s cool, I did not know that! ', 'That\'s awesome! Well, you should be excited since you were right! According to the latest news reports, the Packers are signing placeholder for placeholder', 
+    'Cool! Well, according to the latest reports, the Packers are interested in signing placeholder. '],  
+}
+
+bot_conversation = {  # possible bot continuation responses for keeping the conversation going after originally asking the question
+    '0': ['Why do you like the team?', 'Why don\'t you like the team?', 'Why do you not like them?', 'Why don\'t you like them?', 'Why do you hate them?'],
+    '1': ['Would you like to know anything else about the Green Bay Packers? '],
+    '2': ['Would you like to know anything else about the Green Bay Packers? '],
+
+}
+
+bot_convo_responses = 
+{  # list of responses a bot can come up with during conversation with a user. The keys are the user responses, values are possible bot resposnes
+    'i like them because': ['So you like them because placeholder.', 'You like it because placeholder.'],
+    'i love them because': ['So you love them because placeholder.', 'You love them because placeholder.'],
+    'i do not like them because': ['So you do not like them because placeholder.', 'You do not like them because placeholder.'],
+    'i don\'t like them because': ['So you don\'t like them because placeholder.', 'You don\'t like them because placeholder.'],
+    'they are': ['They are placeholder.'],
+    'i think': ['You think placeholder.'], 
+    'are my favorite because': ['So they are your favorite because placeholder', 'They are your favorite because placeholder.'],
+    'i hate them because': ['You hate them because placeholder.'],
+}
+
+GREETING_INPUTS = ("hello", "hi", "greetings", "sup", "what's up", "hey")
+GREETING_RESPONSES = ["hi", "hey", "*nods*", "hi there", "hello", "I am glad you are talking to me!"]
+
+# get_user_name function. This function takes in the original user response and parses it with Spacy NER to get the user's name
+def get_user_name(user_input):
+
+    if len(user_input) == 0:  # the user did not provide any input
+        return ''  # return an empty string, the user did not provide a name
+
+    name = ''
+    nlp = spacy.load("en_core_web_sm")  # use the small version of the english web core
+    words = nlp(user_input)  # use spacy NER to get the user input tagged
+
+    for ent in words.ents:  # for every part of the input that was tagged
+        if ent.label_ == "PERSON":  # find the name
+            name = ent.text  # set name to the name of the user
+
+    if name == '':  # spacy did not catch the name
+        if len(user_input) == 1:  # user only provided their name
+            name = user_input
+        else:  # user provided more information than just a name
+            stop_words = stopwords.words('english')  # get stop words
+            stop_words += ['name', 'usually', 'called', 'go', 'by', '.', '!', '?']
+            tokens = word_tokenize(user_input.lower())
+            name = [n for n in tokens if n not in stop_words]
+            name = ' '.join(name)
+            return name.capitalize()  # return the name
+
+    return name  # return the name
+
+
+
 
 
 # getUsername function. This function takes in the original user response and parses it with Spacy NER to get the user's name
