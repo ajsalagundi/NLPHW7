@@ -12,6 +12,8 @@ import random
 import string
 import spacy 
 
+users = {}
+
 bot_questions ={
         '0': 'Are you a fan of the Green Bay Packers?',
         '1': 'Would you like to hear about the latest scouting reports ?', # Insert Player's Name
@@ -420,11 +422,12 @@ def continue_conversation(org_response, question_num, user, idx, knowledge):
 
     return  #return to main
 
-if __name__ == '__main__':
-# Main code here
-    knowledge_base = pickle.load(open("knowledge.pickle", "rb")) # get the knowledge base from the web crawler
 
-    users = pickle.load(open("users.pickle", "rb"))  # get the previous user models
+if __name__ == '__main__':
+    # Main code here
+    knowledge_base = pickle.load(open("kb.p", "rb")) # get the knowledge base from the web crawler
+
+    # users = pickle.load(open("users.pickle", "rb"))  # get the previous user models
     currentUser = ''  # variable for the current user
     name = ''  # variable for the user's name
     flag = True  # flag for the loop
@@ -448,36 +451,29 @@ if __name__ == '__main__':
         user_name = user_name.translate(remPunctDict)
         name = get_user_name(user_name).capitalize()  # get the user's name after parsing the input
     name = name.capitalize()
+
     for user in users:  # check if the user already has a model
         if user['name'] == name:  # the user already has a user model
-            currentUser
-     = user  # get that user
+            currentUser = user  # get that user
             break  # end the loop, found the user looking for
 
     if currentUser == '':  # new user
         print("GBB: Hello " + name + "!")  # greet the user with their name
         users.append(base_user_model)  # add a new user to the list of users
         users[-1]['name'] = name  # set  the new user's name to the name given
-        currentUser
- = users[-1]  # get the current user
+        currentUser = users[-1]  # get the current user
     else:  # user is a returning user
         print("GBB: Hello " + name + "! Welcome back!")  # welcome the user back
-        if currentUser
-.get('likes'):  # the user likes are not empty
-            print("GBB: I remember you like " + random.choice(currentUser
-    .get('likes')))  # print out a random thing the user likes
+        if currentUser.get('likes'):  # the user likes are not empty
+            print("GBB: I remember you like " + random.choice(currentUser.get('likes')))  # print out a random thing the user likes
         else:  # user likes are empty
             print("GBB: I do not currently know much about what you like " + name + ".")  # tell user do not know much about their likes
-        if currentUser
-.get('dislikes'):  # the user dislikes are not empty
-            print("GBB: I remember you dislike " + random.choice(currentUser
-    .get('dislikes')))  # print out a random thing the user dislikes
+        if currentUser.get('dislikes'):  # the user dislikes are not empty
+            print("GBB: I remember you dislike " + random.choice(currentUser.get('dislikes')))  # print out a random thing the user dislikes
         else:  # user dislikes are empty
             print("GBB: I do not currently know much about what you don\'t like " + name + ".")  # tell the user do not know much about their dislikes
-        if currentUser
-.get('personal_info'):  # have something personal about the user saved
-            print("GBB: I remember you told me something about: " + random.choice(currentUser
-    .get('personal_info')))  # print out a random thing in personal_info
+        if currentUser.get('personal_info'):  # have something personal about the user saved
+            print("GBB: I remember you told me something about: " + random.choice(currentUser.get('personal_info')))  # print out a random thing in personal_info
         else:  # user personal_info is empty
             print("GBB: I do not currently know much about you " + name + ".")  # tell user do not know much about them
 
@@ -510,11 +506,9 @@ if __name__ == '__main__':
                         print("GBB: I see you mentioned " + topic.capitalize())  # print that the user mentioned the topic
                         print("GBB: ", end="")
                         print(topic_response)
-                    GBB_response, idx, userResp = conversation(userResp, question_num, currentUser
-            )  # get the response
+                    GBB_response, idx, userResp = conversation(userResp, question_num, currentUser)  # get the response
                     print('GBB: ' + GBB_response)  # keep the conversation going
-                    continue_conversation(userResp, question_num, currentUser
-            , idx, knowledge_base)  # conversation part 2
+                    continue_conversation(userResp, question_num, currentUser, idx, knowledge_base)  # conversation part 2
 
                 else:  # user gave bad input
                     print("GBB: Please say whether you want a question or a topic.")
@@ -523,4 +517,4 @@ if __name__ == '__main__':
             flag = False
             print("GBB: Bye! take care...")
 
-    pickle.dump(users, open("users.pickle", "wb"))  # dump the new collection of users to the file
+    users = users  # dump the new collection of users to the file
