@@ -18,13 +18,13 @@ bot_questions ={
         '2': 'Have you heard about the latest free agency signings by the Green Bay Packers?',
  }
 
-possible_user_patterns = {  # possible user responses to the questions, the keys correspond to the bot questions keys
+possible_user_patterns ={  # possible user responses to the questions, the keys correspond to the bot questions keys
     '0': ['Yes', 'Yep ', 'Yup ', 'Yes I am a fan ', 'Yes I am a huge fan ', 'Yeah I like them ', 'Yeah I love them ', 'Yes I like them ' , 'Yes I love them ', 'No I hate them ', 'No I do not like them', 'No ', 'No I don\’t like them '],
     '1': ['Yes I would ', 'Yes ', 'Sure ', 'No ', 'No thank you ', 'Yes please ', 'Nah not really interested ', 'Yeah, I’ve heard we’ve targeted placeholder. Is this true? ' , 'No, but I’m interested in learning more '],
     '2': ['Yes I have', 'Yeah! I’ve heard we are signing placeholder. Is this true? ' , 'No, but I\’m interested in learning more ', 'Yep ', 'Yup ', 'Nope ']
  }
 
-ppossible_bot_responses = {  # possible bot responses to the user patterns, the keys correspond to the user pattern keys and the order is the same as user order
+possible_bot_responses ={  # possible bot responses to the user patterns, the keys correspond to the user pattern keys and the order is the same as user order
     '0': ['That\'s great! ', 'Me too!', 'They are my favorite team too! ', 'But they are such a good team! ', 
     'Aw, they are such a good team though :(', 'That is great!  Would you like to hear about the latest scouting reports ?'],
     '1': ['Cool! Well, according to the latest news, the Packers are targeting {Player Y} because he’s touted for {description of scout from news article}.', 'That\'s too bad. :(',],
@@ -32,14 +32,14 @@ ppossible_bot_responses = {  # possible bot responses to the user patterns, the 
     'Cool! Well, according to the latest reports, the Packers are interested in signing placeholder. '],  
 }
 
-bot_conversation = {  # possible bot continuation responses for keeping the conversation going after originally asking the question
+bot_conversation ={  # possible bot continuation responses for keeping the conversation going after originally asking the question
     '0': ['Why do you like the team?', 'Why don\'t you like the team?', 'Why do you not like them?', 'Why don\'t you like them?', 'Why do you hate them?'],
     '1': ['Would you like to know anything else about the Green Bay Packers? '],
     '2': ['Would you like to know anything else about the Green Bay Packers? '],
 
 }
 
-bot_convo_responses = {  # list of responses a bot can come up with during conversation with a user. The keys are the user responses, values are possible bot resposnes
+bot_convo_responses ={  # list of responses a bot can come up with during conversation with a user. The keys are the user responses, values are possible bot resposnes
     'i like them because': ['So you like them because placeholder.', 'You like it because placeholder.'],
     'i love them because': ['So you love them because placeholder.', 'You love them because placeholder.'],
     'i do not like them because': ['So you do not like them because placeholder.', 'You do not like them because placeholder.'],
@@ -146,8 +146,8 @@ def funFacts(topics, name): # GBB stands for Green bay bot.
     print("GBB: " + random.choice(topics.get(chooseTopic)) + "\n")  # give the user a fact about the topic
 
     def ask_question():
-    choice = random.choice(list(bot_questions.keys()))  # get a random choice
-    return choice, bot_questions[choice]  # return the question number and the question
+        choice = random.choice(list(bot_questions.keys()))  # get a random choice
+        return choice, bot_questions[choice]  # return the question number and the question
 
 ########################################################
 
@@ -168,7 +168,7 @@ def response(knowledge, userResponse):
 
     ##################################################
 
-    # parseUserResponse function. This function parses the given user response to try and find important details to
+# parseUserResponse function. This function parses the given user response to try and find important details to
 # to use in a more customized bot response
 def parseUserResponse(userResponse, possUser, botResponse, user, numQuestion, idx):
     finalResp = ''
@@ -275,9 +275,252 @@ def parseUserResponse(userResponse, possUser, botResponse, user, numQuestion, id
         else:  # phrase was already in their dislikes
             finalResp = 'Aw man! I thought I could change your mind. '  # set finalResp
 
-  
     return finalResp
 
+# LemTokens function. This function lemmatizes the tokens
+def LemTokens(tokens):
+    lemmer = WordNetLemmatizer()
+    return [lemmer.lemmatize(token) for token in tokens]
+
+# LemNormalize function. This function removes punctuation before tokenizing the lowered text and calling LemTokens
+def LemNormalize(text):
+    remPunctDict = dict((ord(punct), None) for punct in string.punctuation)
+    return LemTokens(nltk.word_tokenize(text.lower().translate(remPunctDict)))
+
+# conversation function. This function takes the current question and user and continues the conversation of that question
+def conversation(userResp, question_num, user):
+    response = ''
+    sentences = possible_user_patterns.get(question_num)
+    responses = possible_bot_responses.get(question_num)
+
+    req_tfidf = 0  # variable for req_tfidf
+    while req_tfidf == 0:
+        sentences = [sentence.lower() for sentence in sentences]  # lower all the sentences
+        sentences.append(userResp)  # add the user response to the sentences
+        # see if can find a similar possible user response in responses we have rules for using tfidf and cosine similarity
+        TfidfVec = TfidfVectorizer(tokenizer=LemNormalize)
+        tfidf = TfidfVec.fit_transform(sentences)
+        vals = cosine_similarity(tfidf[-1], tfidf)
+        idx = vals.argsort()[0][-2]
+        flat = vals.flatten()
+        flat.sort()
+        req_tfidf = flat[-2]
+
+        if 'i have' in userResp:  # I have is in the response, tfidf has trouble getting this
+            parsed_response = parse_userResp(userResp, sentences[2], responses[2], user, question_num, 2)
+            response = parsed_response
+            idx = 2
+        elif 'no' in userResp and question_num == '0':  # no is the response but this might get removed in stop words
+            parsed_response = parse_userResp(userResp, sentences[4], responses[4], user, question_num, 4)
+            response = parsed_response
+            idx = 4
+        elif req_tfidf == 0:  # user response did not match a previously defined pattern
+            sentences.remove(userResp)  # remove the original userResp
+            print('GBB: I am sorry, I don\'t understand what you mean.')
+            userResp = input(user['name'] + ': ')  # get the user's input again
+        else:  # user response matched a previously defined pattern
+            parsed_response = parse_userResp(userResp, sentences[idx], responses[idx], user, question_num, idx)
+            response = parsed_response  # get the corresponding bot response
+
+    return response, idx, userResp
+
+# continue_conversation function. This function is for keeping the conversation going on a little longer after getting
+# a user response to a question
+def continue_conversation(org_response, question_num, user, idx, knowledge):
+    bot_ques = bot_conversation[question_num]  # get the possible bot questions
+    bot_rep = bot_ques[idx]  # get the corresponding bot response
+
+    stop_words = stopwords.words('english')
+    stop_words += ['really', 'like', 'n\'t', 'play', 'endgame', 'prefer', '\'m', 'want', 'able', 'since', 'I', 'favorite', '.', '!', '?', ':']
+    stop_words += ['movie', 'love', 'part', 'Marvel', 'marvel', '\'s', 'character', 'superhero', 'dc', 'superpower', 'superpowers']
+    stop_words += ['learned', 'power', 'would', 'avengers']
+    stop_words.remove('is')
+    stop_words.remove('are')
+    stop_words.remove('me')
+    stop_words.remove('more')
+    stop_words.remove('the')
+    stop_words.remove('you')
+    stop_words.remove('it')
+    tokens = word_tokenize(org_response)  # turn the user response into tokens
+    bot_tokens = word_tokenize(bot_rep)
+    no_stop_words_user = [token for token in tokens if token not in stop_words]  # remove any stop words
+    no_stop_words_bot = [token for token in bot_tokens if token not in stop_words]  # remove any stop words
+    remove_bot_part = [token for token in no_stop_words_user if token not in no_stop_words_bot]
+
+    remove_bot_part = ' '.join(remove_bot_part)
+
+    if 'placeholder' in bot_rep:  # have a placeholder to fit in the question
+        bot_rep = bot_rep.replace('placeholder', remove_bot_part)
+
+    print("GBB: " + bot_rep)  # ask the new question
+    userResp = input(user['name'] + ': ')  # get the user's response
+    userResp = userResp.lower()  # lower the response
+
+    topic, topic_response = response(knowledge, userResp)  # if user mentioned topic give a fact about it
+    if topic != '':  # user mentioned a topic
+        print("GBB: I see you mentioned " + topic.capitalize())  # print that the user mentioned the topic
+        print("GBB: ", end="")
+        print(topic_response)
+
+
+    req_tfidf = 0
+
+    user_rep = bot_convo_responses.keys()  # get the possible user responses
+    while req_tfidf == 0:
+        tokens = word_tokenize(userResp)  # tokenize the response
+        no_stop_words = [token for token in tokens if token not in stop_words]  # get the important words
+        important_words = ' '.join(no_stop_words)  # create the important part
+        first = important_words.find('is')
+        if first != -1:  # if the word is in the string
+            again = important_words.find('is', first + 1)
+            if again != -1:  # is in the string twice
+                important_words = important_words.replace('is', '', 1)  # replace the first occurrence
+
+        sentences = [sentence.lower() for sentence in user_rep]  # lower all the sentences
+        sentences.append(userResp)  # add the user response to the sentences
+        # see if can find a similar possible user response in responses we have rules for using tfidf and cosine similarity
+        TfidfVec = TfidfVectorizer(tokenizer=LemNormalize)
+        tfidf = TfidfVec.fit_transform(sentences)
+        vals = cosine_similarity(tfidf[-1], tfidf)
+        idx = vals.argsort()[0][-2]
+        flat = vals.flatten()
+        flat.sort()
+        req_tfidf = flat[-2]
+
+        if req_tfidf == 0:  # did not find a corresponding user pattern
+            print('GBB: I\'m sorry, I did not understand what you said.')
+            sentences.remove(userResp)
+        else:  # found a match
+            key = sentences[idx].strip()  # get the corresponding key
+            bot_responses = bot_convo_responses.get(key)  # get the possible bot responses
+            if len(bot_responses) == 0:  # thought it found a match but it did not
+                print('GBB: I\'m sorry, I did not understand what you said.')
+                sentences.remove(userResp)
+                continue  # keep the loop going
+            rep = random.choice(bot_responses)  # choose a random bot response
+
+            if rep[0] == ' ':  # placeholder to add the important things at the beginning
+                rep = important_words.capitalize() + rep  # create the response
+            elif rep[-1] == ' ':  # placeholder to add the important things at the end
+                rep = rep + important_words  # create the response
+            elif 'placeholder' in rep:  # have placeholder in the response to add important data there
+                rep = rep.replace('placeholder', important_words)
+
+            print('GBB: ' + rep)  # print out the bot's response
+            continue
+
+        userResp = input(user['name'] + ': ')  # get the user's response
+        userResp = userResp.lower()  # lower case the response
+
+        topic, topic_response = response(knowledge, userResp)  # if user mentioned topic give a fact about it
+        if topic != '':  # user mentioned a topic
+            print("GBB: I see you mentioned " + topic.capitalize())  # print that the user mentioned the topic
+            print("GBB: ", end="")
+            print(topic_response)
+
+    return  #return to main
 
 if __name__ == '__main__':
-    # Main code here
+# Main code here
+    knowledge_base = pickle.load(open("knowledge.pickle", "rb")) # get the knowledge base from the web crawler
+
+    users = pickle.load(open("users.pickle", "rb"))  # get the previous user models
+    currentUser = ''  # variable for the current user
+    name = ''  # variable for the user's name
+    flag = True  # flag for the loop
+
+    # introduce the bot
+    print("GBB: Go Pack Go! I'm GBB! ")
+    print("GBB: Please enter \"bye\", \"thanks\", or \"thank you\" to exit when done.")
+    print("GBB: When talking to me, please use full sentences to have an error-free experience!")
+
+    # get the user's name
+    print("GBB: What is your name?")  # get the user's name
+    user_name = input("User: ")  # read in the user's name
+    remPunctDict = dict((ord(punct), None) for punct in string.punctuation)
+    user_name = user_name.translate(remPunctDict)
+    user_name = user_name
+    name = get_user_name(user_name)  # get the user's name after parsing the input
+
+    while name == '':  # if the user doesn't actually enter a name
+        print("GBB: Please tell me your name. ")
+        user_name = input("User: ")  # read in the user's name
+        user_name = user_name.translate(remPunctDict)
+        name = get_user_name(user_name).capitalize()  # get the user's name after parsing the input
+    name = name.capitalize()
+    for user in users:  # check if the user already has a model
+        if user['name'] == name:  # the user already has a user model
+            currentUser
+     = user  # get that user
+            break  # end the loop, found the user looking for
+
+    if currentUser == '':  # new user
+        print("GBB: Hello " + name + "!")  # greet the user with their name
+        users.append(base_user_model)  # add a new user to the list of users
+        users[-1]['name'] = name  # set  the new user's name to the name given
+        currentUser
+ = users[-1]  # get the current user
+    else:  # user is a returning user
+        print("GBB: Hello " + name + "! Welcome back!")  # welcome the user back
+        if currentUser
+.get('likes'):  # the user likes are not empty
+            print("GBB: I remember you like " + random.choice(currentUser
+    .get('likes')))  # print out a random thing the user likes
+        else:  # user likes are empty
+            print("GBB: I do not currently know much about what you like " + name + ".")  # tell user do not know much about their likes
+        if currentUser
+.get('dislikes'):  # the user dislikes are not empty
+            print("GBB: I remember you dislike " + random.choice(currentUser
+    .get('dislikes')))  # print out a random thing the user dislikes
+        else:  # user dislikes are empty
+            print("GBB: I do not currently know much about what you don\'t like " + name + ".")  # tell the user do not know much about their dislikes
+        if currentUser
+.get('personal_info'):  # have something personal about the user saved
+            print("GBB: I remember you told me something about: " + random.choice(currentUser
+    .get('personal_info')))  # print out a random thing in personal_info
+        else:  # user personal_info is empty
+            print("GBB: I do not currently know much about you " + name + ".")  # tell user do not know much about them
+
+    while flag:  # while the user still wants to talk
+        print("GBB: Would you like me to ask you a question or do you want to hear a sentence from one of my outside knowledge topics? ")  # ask user what they want
+        userResp = input(name + ": ")  # prompt the user for a response
+        userResp = userResp.lower()  # lower case the user's response
+        remPunctDict = dict((ord(punct), None) for punct in string.punctuation)
+        userResp = userResp.translate(remPunctDict)
+        if userResp != 'bye':  # the user still wants to talk
+            if userResp == 'thanks' or userResp == 'thank you':  # the user is saying thank you
+                flag = False
+                print("GBB: You are welcome. Have a nice day!")
+            else:
+                if greeting(userResp):  # user said a greeting
+                    print("GBB: " + greeting(userResp))
+
+                elif wants_topic(userResp):  # if the user wants a list of the topics
+                    print("GBB: Here are the topics I have sentences from the web about: ")
+                    [print(top.capitalize()) for top in knowledge_base.keys()]  # print the topics
+                    ask_about_topics(knowledge_base, name)  # move conversation forward about a topic
+
+                elif 'question' in userResp:  # user did not say a greeting or a thanks and does not want a topic to ask about
+                    question_num, question = ask_question()  # get the number of the question and the question
+                    print('GBB: ' + question)  # ask the user a question
+                    userResp = input(name + ": ")  # get the user's response for the question
+                    userResp = userResp.lower()  # lower case the user's response
+                    topic, topic_response = response(knowledge_base, userResp)  # if user mentioned topic give a fact about it
+                    if topic != '':  # user mentioned a topic
+                        print("GBB: I see you mentioned " + topic.capitalize())  # print that the user mentioned the topic
+                        print("GBB: ", end="")
+                        print(topic_response)
+                    GBB_response, idx, userResp = conversation(userResp, question_num, currentUser
+            )  # get the response
+                    print('GBB: ' + GBB_response)  # keep the conversation going
+                    continue_conversation(userResp, question_num, currentUser
+            , idx, knowledge_base)  # conversation part 2
+
+                else:  # user gave bad input
+                    print("GBB: Please say whether you want a question or a topic.")
+
+        else:  # user is done talking
+            flag = False
+            print("GBB: Bye! take care...")
+
+    pickle.dump(users, open("users.pickle", "wb"))  # dump the new collection of users to the file
