@@ -84,10 +84,6 @@ def get_user_name(user_input):
 
     return name  # return the name
 
-
-
-
-
 # getUsername function. This function takes in the original user response and parses it with Spacy NER to get the user's name
 def getUsername (userInput):
 
@@ -285,12 +281,6 @@ def parseUserResponse(userResponse, possUser, botResponse, user, numQuestion, id
 
   
     return finalResp
-
-
-
-
-
-
 
 
 if __name__ == '__main__':
