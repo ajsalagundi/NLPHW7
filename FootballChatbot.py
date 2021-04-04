@@ -12,22 +12,19 @@ import random
 import string
 import spacy 
 
-bot_questions =
- { 
+bot_questions ={
         '0': 'Are you a fan of the Green Bay Packers?',
         '1': 'Would you like to hear about the latest scouting reports ?', # Insert Player's Name
         '2': 'Have you heard about the latest free agency signings by the Green Bay Packers?',
  }
 
-possible_user_patterns = 
- {  # possible user responses to the questions, the keys correspond to the bot questions keys
+possible_user_patterns = {  # possible user responses to the questions, the keys correspond to the bot questions keys
     '0': ['Yes', 'Yep ', 'Yup ', 'Yes I am a fan ', 'Yes I am a huge fan ', 'Yeah I like them ', 'Yeah I love them ', 'Yes I like them ' , 'Yes I love them ', 'No I hate them ', 'No I do not like them', 'No ', 'No I don\’t like them '],
     '1': ['Yes I would ', 'Yes ', 'Sure ', 'No ', 'No thank you ', 'Yes please ', 'Nah not really interested ', 'Yeah, I’ve heard we’ve targeted placeholder. Is this true? ' , 'No, but I’m interested in learning more '],
     '2': ['Yes I have', 'Yeah! I’ve heard we are signing placeholder. Is this true? ' , 'No, but I\’m interested in learning more ', 'Yep ', 'Yup ', 'Nope ']
  }
 
-ppossible_bot_responses = 
-{  # possible bot responses to the user patterns, the keys correspond to the user pattern keys and the order is the same as user order
+ppossible_bot_responses = {  # possible bot responses to the user patterns, the keys correspond to the user pattern keys and the order is the same as user order
     '0': ['That\'s great! ', 'Me too!', 'They are my favorite team too! ', 'But they are such a good team! ', 
     'Aw, they are such a good team though :(', 'That is great!  Would you like to hear about the latest scouting reports ?'],
     '1': ['Cool! Well, according to the latest news, the Packers are targeting {Player Y} because he’s touted for {description of scout from news article}.', 'That\'s too bad. :(',],
@@ -42,8 +39,7 @@ bot_conversation = {  # possible bot continuation responses for keeping the conv
 
 }
 
-bot_convo_responses = 
-{  # list of responses a bot can come up with during conversation with a user. The keys are the user responses, values are possible bot resposnes
+bot_convo_responses = {  # list of responses a bot can come up with during conversation with a user. The keys are the user responses, values are possible bot resposnes
     'i like them because': ['So you like them because placeholder.', 'You like it because placeholder.'],
     'i love them because': ['So you love them because placeholder.', 'You love them because placeholder.'],
     'i do not like them because': ['So you do not like them because placeholder.', 'You do not like them because placeholder.'],
