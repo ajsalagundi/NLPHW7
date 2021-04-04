@@ -427,7 +427,7 @@ if __name__ == '__main__':
     # Main code here
     knowledge_base = pickle.load(open("kb.p", "rb")) # get the knowledge base from the web crawler
 
-    # users = pickle.load(open("users.pickle", "rb"))  # get the previous user models
+    users = pickle.load(open("users.pickle", "rb"))  # get the previous user models
     currentUser = ''  # variable for the current user
     name = ''  # variable for the user's name
     flag = True  # flag for the loop
