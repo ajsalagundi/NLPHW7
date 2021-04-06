@@ -115,6 +115,7 @@ if __name__ == "__main__":
                 'cheesehead', 'football', 'lombardi trophy', 'championships', 'super bowl rings', 'draft pick']:
         # These are some reserve words commonly used in the domain of the application's knowledge base.
         important_words.append(word)
-    knowledge_base = build_kb(list(set(important_words)))
+    words = [term[0] for term in important_words]
+    knowledge_base = build_kb(list(set(words)))
     pickle.dump(knowledge_base, open('kb.p', 'wb'))
     print("------------------------- FINISHED BUILDING KB ----------------------------------")
