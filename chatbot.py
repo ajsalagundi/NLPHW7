@@ -32,6 +32,7 @@ user_model = {
 if __name__ == "__main__":
     knowledge_base = pickle.load(open("kb.p", "rb"))  # get the knowledge base from the web crawler
     current_user = {}
+    stop = False
 
     if os.path.isfile("./users.pickle"):
         users = pickle.load(open("users.pickle", "rb"))  # get the previous user models
@@ -51,8 +52,14 @@ if __name__ == "__main__":
         users[name] = user_model
 
     # Ask if the user is a fan of GBP for personalization
-    fan = input("Are you a fan of the Green Bay Packers? Type Y (yes) / N (no)")
+    fan = input("Are you a fan of the Green Bay Packers? Type yes / no")
     if fan == "Y":
         current_user['likes'].append('fan')
     else:
         current_user['dislikes'].append('not a fan')
+
+    while stop:
+        print("If you would like to end this conversation, please respond with 'bye'.")
+        user_resp = input(name + ": ")
+        if user_resp == 'bye':
+            print("What would you like to know about the off season for the Green Bay Packers?")
