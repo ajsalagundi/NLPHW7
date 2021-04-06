@@ -1,12 +1,16 @@
+# Kirtana Kalavagunta
+# Ananth Salagundi
+# CS 4395.0W1
+# Due: 4/3/2021
+
 from urllib import request
 from urllib.parse import urlparse
 from bs4 import BeautifulSoup
-import os, re, pickle, io, spacy
-
 from nltk.corpus import stopwords
 from nltk.tokenize import sent_tokenize
 from collections import Counter
 from string import punctuation
+import os, re, pickle, io, spacy
 
 nlp = spacy.load('en_core_web_lg')
 
@@ -73,19 +77,22 @@ def extract_important(text):
     return freq_words.most_common(1000)
 
 
-def build_sentence_bank(data_file):
-    dbank = []
-    for line in data_file:
-        raw_text = line.replace("\n", "").replace("\t", "")
-        for sent in sent_tokenize(raw_text):
-            dbank.append(sent)
+# def build_sentence_bank():
+#     dbank = []
+#     data_file = io.open("url_out.text", 'r', encoding='utf-8')
+#     for line in data_file:
+#         raw_text = line.replace("\n", "").replace("\t", "")
+#         for sent in sent_tokenize(raw_text):
+#             dbank.append(sent)
+#
+#     return dbank
 
-    return dbank
 
-
-def build_kb(terms, files):
+def build_kb(terms):
     kb = {}
-    data_bank = build_sentence_bank(files)
+    with io.open("url_out.text", "r", encoding='utf-8') as data_file:
+        text = data_file.read()
+        data_bank = sent_tokenize(text)
 
     for term in terms:
         kb[term] = [sent for sent in data_bank if term in sent]
@@ -108,6 +115,6 @@ if __name__ == "__main__":
                 'cheesehead', 'football', 'lombardi trophy', 'championships', 'super bowl rings', 'draft pick']:
         # These are some reserve words commonly used in the domain of the application's knowledge base.
         important_words.append(word)
-    knowledge_base = build_kb(list(set(important_words)), f)
+    knowledge_base = build_kb(list(set(important_words)))
     pickle.dump(knowledge_base, open('kb.p', 'wb'))
     print("------------------------- FINISHED BUILDING KB ----------------------------------")

@@ -1,20 +1,23 @@
 # Kirtana Kalavagunta
 # Ananth Salagundi 
 # CS 4395.0W1
-# Due: 3/4/2021
+# Due: 4/3/2021
 
 import nltk
 from nltk.stem import WordNetLemmatizer
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
-import pickle
-import random
-import string
-import spacy 
+import pickle, random, string, spacy, os
 
-users = {}
+user_model = {
+    user: "",
+    personal_information: "",
+    likes: [],
+    dislikes: []
+}
 
-bot_questions ={
+
+bot_questions = {
         '0': 'Are you a fan of the Green Bay Packers?',
         '1': 'Would you like to hear about the latest scouting reports ?', # Insert Player's Name
         '2': 'Have you heard about the latest free agency signings by the Green Bay Packers?',
@@ -82,37 +85,6 @@ def get_user_name(user_input):
 
     return name  # return the name
 
-# getUsername function. This function takes in the original user response and parses it with Spacy NER to get the user's name
-def getUsername (userInput):
-
-    if len(userInput) == 0:  
-        return ''  
-
-    name = ''
-
-    # use spacy NER to get the user input tagged
-    nlp = spacy.load("en_core_web_sm")  
-    words = nlp(userInput)  
-
-    # set name to the name of the user
-    for ent in words.ents:  
-        if ent.label_ == "PERSON":  
-            name = ent.text  
-
-    if name == '':  # spacy did not catch the name
-        if len(userInput) == 1:  # user only provided their name
-            name = userInput
-        else:  # user provided more information than just a name
-            stopWords = stopwords.words('english')  # get stop words
-            stopWords += ['name', 'usually', 'called', 'go', 'by', '.', '!', '?']
-            tokens = word_tokenize(userInput.lower())
-            name = [n for n in tokens if n not in stopWords]
-            name = ' '.join(name)
-            return name.capitalize()  # return the name
-
-    return name  # return the name
-
-###############################################
 
 def greeting(sentence):
     for word in sentence.split():
@@ -427,7 +399,11 @@ if __name__ == '__main__':
     # Main code here
     knowledge_base = pickle.load(open("kb.p", "rb")) # get the knowledge base from the web crawler
 
-    users = pickle.load(open("users.pickle", "rb"))  # get the previous user models
+    if os.path.isfile("./users.pickle"):
+        users = pickle.load(open("users.pickle", "rb"))  # get the previous user models
+    else:
+        users = {}
+
     currentUser = ''  # variable for the current user
     name = ''  # variable for the user's name
     flag = True  # flag for the loop
@@ -517,4 +493,4 @@ if __name__ == '__main__':
             flag = False
             print("GBB: Bye! take care...")
 
-    users = users  # dump the new collection of users to the file
+    pickle.dump(users, open("users.pickle", "wb"))  # dump the new collection of users to the file
