@@ -19,9 +19,14 @@ user_model = {
     'dislikes': []
 }
 
+
 # ------------------------------- RESPONSE PARSER ---------------------------------------------
 
 def parse_response(user_response):
+    """
+    This method is used to parse the user's response to questions asked by the bot. This method identifies the keywords
+    related to the topics as outlined.
+    """
     stop_words = stopwords.words("english") + ['Green', "Bay", 'Packers']
     user_words = word_tokenize(user_response)
     updated = [word for word in user_words if word not in stop_words and word not in punctuation]
@@ -39,22 +44,13 @@ def parse_response(user_response):
 
     return words
 
-# ------------------------------- NER FACTS ---------------------------------------------
-def ner_fact_generation(topics, article):
-        print("GBB: I'm sorry, I forgot what we were talking about! Please re-enter your topic: ") 
-        user_resp = input(name + ": ")
-        parsed = parse_response(user_resp)
-        articles = [knowledge_base[word] for word in parsed if word in knowledge_base.keys()]
-        # Check for a valid search
-        print("Here's what I found online: \n")
-
-        if len(articles) > 0:
-            # If it's valid, then show the response and ask them if they want to more about the question they asked.
-            print(articles[0])  # Need to format this response
-
 
 # ------------------------------ PERSONAL QUESTIONS ---------------------------------------------
 def personal_questions(user):
+    """
+    This method is used to display a random personal question to the user. It also keeps track of which questions were
+    asked to the user so as to develop a more complete user profile.
+    """
     questions = {
         1: 'How long have you been a fan of the Packers?',
         2: 'Why are you a fan of the Packers?',
@@ -71,7 +67,12 @@ def personal_questions(user):
             user['personal questions asked'].append(num)
             return questions[num]
 
+
 def notAFan_questions(user):
+    """
+    These are questions asked to users who responded "no" to the question of "Are you a fan of the Green Bay Packers?"
+    This method also keeps track of the questions already asked to the particular user.
+    """
     questions = {
         1: "How old are you? ",
         2: "What do you like to do in your free time? ",
@@ -87,6 +88,7 @@ def notAFan_questions(user):
         if num not in answered:
             user['personal questions asked'].append(num)
             return questions[num]
+
 
 if __name__ == "__main__":
     knowledge_base = pickle.load(open("kb.p", "rb"))  # get the knowledge base from the web crawler
@@ -119,11 +121,12 @@ if __name__ == "__main__":
 
     # Ask if the user is a fan of GBP for personalization
     fan = input("\nAre you a fan of the Green Bay Packers? Type yes/no: ")
-    if fan == "yes" or "Yes":
+    if fan == "yes" or fan == "Yes":
         current_user['likes'].append('fan')
     else:
         current_user['dislikes'].append('not a fan')
-        print("Aw, I'm sorry to hear that, but I would still like to chat! Please type \'exit\' to take my exit survey: ")
+        print(
+            "Aw, I'm sorry to hear that, but I would still like to chat! Please type \'exit\' to take my exit survey: ")
         user_resp = input(name + ": ")
         if user_resp == 'exit':
             stop = True
@@ -132,24 +135,23 @@ if __name__ == "__main__":
 
             if user_resp.lower() in ['yes', 'yeah', 'yep']:
                 users[name]['likes'].append(" liked chatting with the bot\n")
-                print("I\'m so glad to hear that! :) Please answer one more question before you go, so that I can remember you when you return!\n")
+                print(
+                    "I\'m so glad to hear that! :) Please answer one more question before you go, so that I can remember you when you return!\n")
                 print(personal_questions(current_user))
                 current_user['personal information'].append(input(name + ": "))
-                print("Thank you for taking my exit survey.\n")
-                print("I hope we can talk more about the Packers the next time we chat. :) \n")
-                print("GO PACK GO!\n")
             else:
                 users[name]['dislikes'].append(" didn't like chatting with the bot\n")
-                print("I\'m so sorry to hear that. :( Please answer one more question before you go, so that I can remember you when you return! \n")
+                print(
+                    "I\'m so sorry to hear that. :( Please answer one more question before you go, so that I can remember you when you return! \n")
                 print(notAFan_questions(current_user))
                 current_user['personal information'].append(input(name + ": "))
-                print("Thank you for taking my exit survey.\n")
-                print("I hope we can talk more about the Packers the next time we chat. :) \n")
-                print("GO PACK GO!\n")
 
-                pickle.dump(users, open("users.pickle", "wb"))
-                exit(0)
-
+            print("Thank you for taking my exit survey.\n")
+            print("I hope we can talk more about the Packers the next time we chat. :) \n")
+            print("GO PACK GO!\n")
+            users[name] = current_user
+            pickle.dump(users, open("users.pickle", "wb"))
+            exit(0)
 
     # ------------------------- MAIN QUESTIONS --------------------------------------------
 
@@ -163,25 +165,37 @@ if __name__ == "__main__":
         # Check for a valid search
         if len(articles) > 0:
             # If it's valid, then show the response and ask them if they want to more about the question they asked.
-            print(articles[0])  # Need to format this response
+            print(articles[random.randint(0, len(articles)/10)])  # Need to format this response
             # Ask the user if they want to know more facts about the previous question
             print("\nDo you want to know more about this?\n")
             user_resp = input(name + ": ")
             if user_resp.lower() in ['yes', 'yeah', 'yep']:
                 # If they want to know more, then print a fun fact about the previous question's topic
-                ner_fact_generation(user_resp, articles)
+                print("GBB: I'm sorry, I forgot what we were talking about! Please re-enter your topic: ")
+                resp = input(name + ": ")
+                parse = parse_response(resp)
+                news = [knowledge_base[word] for word in parse if word in knowledge_base.keys()]
+                # Check for a valid search
+                print("Here's what I found online: \n")
+
+                if len(news) > 0:
+                    # If it's valid, then show the response and ask them if they want to more about the question they asked.
+                    print(news[random.randint(0, len(news) / 10)])  # Need to format this response
                 print()
         else:
             print("Unfortunately, I am not aware of this.\n")
             user_resp = input(name + ": ")
 
+        # Main question of the chatbot
         print("Would you like to know something else? Type yes/no: ")
         user_resp = input(name + ": ")
+        parsed = parse_response(user_resp)
+        articles = [knowledge_base[word] for word in parsed if word in knowledge_base.keys()]
 
         if user_resp == 'yes':
             if len(articles) > 0:
-            # If it's valid, then show the response and ask them if they want to more about the question they asked.
-                print(articles[0])  # Need to format this response
+                # If it's valid, then show the response and ask them if they want to more about the question they asked.
+                print(articles[random.randint(0, len(articles)/10)])  # Need to format this response
             # Ask the user if they want to know more facts about the previous question
             print()
         else:
