@@ -56,12 +56,12 @@ def ner_fact_generation(topics, article):
 # ------------------------------ PERSONAL QUESTIONS ---------------------------------------------
 def personal_questions(user):
     questions = {
-        1: 'How long have you been a fan of the Packers?',
-        2: 'Why are you a fan of the Packers?',
-        3: "What team do you hate the most?",
-        4: "Who's your favorite player on the Packers?",
-        5: "Who's your least favorite player on the Packers?",
-        6: "Do you come from a family of Packer fans, or are you a lone ranger?"
+        1: 'GBB: How long have you been a fan of the Packers?',
+        2: 'GBB: Why are you a fan of the Packers?',
+        3: "GBB: What team do you hate the most?",
+        4: "GBB: Who's your favorite player on the Packers?",
+        5: "GBB: Who's your least favorite player on the Packers?",
+        6: "GBB: Do you come from a family of Packer fans, or are you a lone ranger?"
     }
 
     while True:
@@ -73,12 +73,12 @@ def personal_questions(user):
 
 def notAFan_questions(user):
     questions = {
-        1: "How old are you? ",
-        2: "What do you like to do in your free time? ",
-        3: "What is your ethnicity? ",
-        4: "What did you eat for breakfast? ",
-        5: "Are you an early bird or a night owl? ",
-        6: "Do you like football? "
+        1: "GBB: How old are you? ",
+        2: "GBB: What do you like to do in your free time? ",
+        3: "GBB: What is your ethnicity? ",
+        4: "GBB: What did you eat for breakfast? ",
+        5: "GBB: Are you an early bird or a night owl? ",
+        6: "GBB: Do you like football? "
     }
 
     while True:
@@ -100,14 +100,14 @@ if __name__ == "__main__":
 
     # ------------------------- GREETINGS AND USER PROFILE --------------------------------------------
 
-    print("Howdy! This is the Green Bay Bot, the guy with the latest Packer news!\n")
-    print("You can ask me about Green Bay's free agency moves, their contract negotiations, and the draft.\n")
+    print("GBB: Howdy! This is the Green Bay Bot, the guy with the latest Packer news!\n")
+    print("GBB: You can ask me about Green Bay's free agency moves, their contract negotiations, and the draft.\n")
     # Ask and store the user's name
-    name = input("Please enter your name so I can get to know you better: ")
+    name = input("GBB: Please enter your name so I can get to know you better: ")
     name = name.strip()
     if name in users.keys():
         current_user = users[name]
-        print("Welcome back, fellow Cheesehead!\n")
+        print("GBB: Welcome back, fellow Cheesehead!\n")
         print(personal_questions(current_user))
         current_user['personal information'].append(input(name + ": "))
     else:
@@ -118,34 +118,34 @@ if __name__ == "__main__":
     # ------------------------- PERSONALIZATION --------------------------------------------
 
     # Ask if the user is a fan of GBP for personalization
-    fan = input("\nAre you a fan of the Green Bay Packers? Type yes/no: ")
+    fan = input("\nGBB: Are you a fan of the Green Bay Packers? Type yes/no: ")
     if fan == "yes" or "Yes":
         current_user['likes'].append('fan')
     else:
         current_user['dislikes'].append('not a fan')
-        print("Aw, I'm sorry to hear that, but I would still like to chat! Please type \'exit\' to take my exit survey: ")
+        print("GBB: Aw, I'm sorry to hear that, but I would still like to chat! Please type \'exit\' to take my exit survey: ")
         user_resp = input(name + ": ")
         if user_resp == 'exit':
             stop = True
-            print("\nThank you for using the GBB Chatbot! Did you enjoy chatting with me?\n")
+            print("\nGBB: Thank you for using the GBB Chatbot! Did you enjoy chatting with me?\n")
             user_resp = input(name + ": ")
 
             if user_resp.lower() in ['yes', 'yeah', 'yep']:
                 users[name]['likes'].append(" liked chatting with the bot\n")
-                print("I\'m so glad to hear that! :) Please answer one more question before you go, so that I can remember you when you return!\n")
+                print("GBB: I\'m so glad to hear that! :) Please answer one more question before you go, so that I can remember you when you return!\n")
                 print(personal_questions(current_user))
                 current_user['personal information'].append(input(name + ": "))
-                print("Thank you for taking my exit survey.\n")
-                print("I hope we can talk more about the Packers the next time we chat. :) \n")
-                print("GO PACK GO!\n")
+                print("GBB: Thank you for taking my exit survey.\n")
+                print("GBB: I hope we can talk more about the Packers the next time we chat. :) \n")
+                print("GBB: GO PACK GO!\n")
             else:
                 users[name]['dislikes'].append(" didn't like chatting with the bot\n")
-                print("I\'m so sorry to hear that. :( Please answer one more question before you go, so that I can remember you when you return! \n")
+                print("GBB: I\'m so sorry to hear that. :( Please answer one more question before you go, so that I can remember you when you return! \n")
                 print(notAFan_questions(current_user))
                 current_user['personal information'].append(input(name + ": "))
-                print("Thank you for taking my exit survey.\n")
-                print("I hope we can talk more about the Packers the next time we chat. :) \n")
-                print("GO PACK GO!\n")
+                print("GBB: Thank you for taking my exit survey.\n")
+                print("GBB: I hope we can talk more about the Packers the next time we chat. :) \n")
+                print("GBB: GO PACK GO!\n")
 
                 pickle.dump(users, open("users.pickle", "wb"))
                 exit(0)
@@ -154,8 +154,8 @@ if __name__ == "__main__":
     # ------------------------- MAIN QUESTIONS --------------------------------------------
 
     while not stop:
-        print("\nWhat would you like to know about the off season for the Green Bay Packers?")
-        print("\nAs a reminder, you can ask me about free agency moves, contract negotiations, and the draft.\n")
+        print("\nGBB: What would you like to know about the off season for the Green Bay Packers?")
+        print("\nGBB: As a reminder, you can ask me about free agency moves, contract negotiations, and the draft.\n")
         user_resp = input(name + ": ")
         parsed = parse_response(user_resp)
         articles = [knowledge_base[word] for word in parsed if word in knowledge_base.keys()]
@@ -165,17 +165,17 @@ if __name__ == "__main__":
             # If it's valid, then show the response and ask them if they want to more about the question they asked.
             print(articles[0])  # Need to format this response
             # Ask the user if they want to know more facts about the previous question
-            print("\nDo you want to know more about this?\n")
+            print("\nGBB: Do you want to know more about this?\n")
             user_resp = input(name + ": ")
             if user_resp.lower() in ['yes', 'yeah', 'yep']:
                 # If they want to know more, then print a fun fact about the previous question's topic
                 ner_fact_generation(user_resp, articles)
                 print()
         else:
-            print("Unfortunately, I am not aware of this.\n")
+            print("GBB: Unfortunately, I am not aware of this.\n")
             user_resp = input(name + ": ")
 
-        print("Would you like to know something else? Type yes/no: ")
+        print("GBB: Would you like to know something else? Type yes/no: ")
         user_resp = input(name + ": ")
 
         if user_resp == 'yes':
@@ -185,11 +185,11 @@ if __name__ == "__main__":
             # Ask the user if they want to know more facts about the previous question
             print()
         else:
-            print("If you would like to end this conversation, please respond with 'bye': ")
+            print("GBB: If you would like to end this conversation, please respond with 'bye': ")
             user_resp = input(name + ": ")
             if user_resp == 'bye':
                 stop = True
-                print("Aw, I'm sorry to see you go! Did you like the information I gave you?")
+                print("GBB: Aw, I'm sorry to see you go! Did you like the information I gave you?")
                 user_resp = input(name + ": ")
 
                 if user_resp.lower() in ['yes', 'yeah', 'yep']:
@@ -197,10 +197,10 @@ if __name__ == "__main__":
                 else:
                     users[name]['dislikes'].append(" didn't like the bot's information")
 
-                print("Before you leave, please take my exit survey: ")
+                print("GBB: Before you leave, please take my exit survey: ")
                 print(personal_questions(current_user))
                 current_user['personal information'].append(input(name + ": "))
-                print("Thank you so much for using the GBB chatbot! Go Pack Go!")
+                print("GBB: Thank you so much for using the GBB chatbot! Go Pack Go!")
 
                 pickle.dump(users, open("users.pickle", "wb"))
                 exit(0)
