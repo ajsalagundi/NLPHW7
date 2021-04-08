@@ -119,7 +119,7 @@ if __name__ == "__main__":
 
     # Ask if the user is a fan of GBP for personalization
     fan = input("\nGBB: Are you a fan of the Green Bay Packers? Type yes/no: ")
-    if fan == "yes" or "Yes":
+    if fan == "yes":
         current_user['likes'].append('fan')
     else:
         current_user['dislikes'].append('not a fan')
