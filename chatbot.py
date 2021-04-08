@@ -126,19 +126,11 @@ if __name__ == "__main__":
     else:
         current_user['dislikes'].append('not a fan')
         print("GBB: Aw, I'm sorry to hear that, but I would still like to chat! Please type \'exit\' to take my exit survey: ")
-    fan = input("\nAre you a fan of the Green Bay Packers? Type yes/no: ")
-    if fan == "yes" or fan == "Yes":
-        current_user['likes'].append('fan')
-    else:
-        current_user['dislikes'].append('not a fan')
-        print(
-            "Aw, I'm sorry to hear that, but I would still like to chat! Please type \'exit\' to take my exit survey: ")
         user_resp = input(name + ": ")
         if user_resp == 'exit':
             stop = True
             print("\nGBB: Thank you for using the GBB Chatbot! Did you enjoy chatting with me?\n")
             user_resp = input(name + ": ")
-
             if user_resp.lower() in ['yes', 'yeah', 'yep']:
                 users[name]['likes'].append(" liked chatting with the bot\n")
                 print("GBB: I\'m so glad to hear that! :) Please answer one more question before you go, so that I can remember you when you return!\n")
@@ -147,6 +139,9 @@ if __name__ == "__main__":
                 print("GBB: Thank you for taking my exit survey.\n")
                 print("GBB: I hope we can talk more about the Packers the next time we chat. :) \n")
                 print("GBB: GO PACK GO!\n")
+                users[name] = current_user
+                pickle.dump(users, open("users.pickle", "wb"))
+                exit(0)
             else:
                 users[name]['dislikes'].append(" didn't like chatting with the bot\n")
                 print("GBB: I\'m so sorry to hear that. :( Please answer one more question before you go, so that I can remember you when you return! \n")
@@ -155,26 +150,10 @@ if __name__ == "__main__":
                 print("GBB: Thank you for taking my exit survey.\n")
                 print("GBB: I hope we can talk more about the Packers the next time we chat. :) \n")
                 print("GBB: GO PACK GO!\n")
-
+                users[name] = current_user
                 pickle.dump(users, open("users.pickle", "wb"))
                 exit(0)
-                print(
-                    "I\'m so glad to hear that! :) Please answer one more question before you go, so that I can remember you when you return!\n")
-                print(personal_questions(current_user))
-                current_user['personal information'].append(input(name + ": "))
-            else:
-                users[name]['dislikes'].append(" didn't like chatting with the bot\n")
-                print(
-                    "I\'m so sorry to hear that. :( Please answer one more question before you go, so that I can remember you when you return! \n")
-                print(notAFan_questions(current_user))
-                current_user['personal information'].append(input(name + ": "))
-
-            print("Thank you for taking my exit survey.\n")
-            print("I hope we can talk more about the Packers the next time we chat. :) \n")
-            print("GO PACK GO!\n")
-            users[name] = current_user
-            pickle.dump(users, open("users.pickle", "wb"))
-            exit(0)
+            
 
     # ------------------------- MAIN QUESTIONS --------------------------------------------
 
