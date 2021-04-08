@@ -167,7 +167,7 @@ if __name__ == "__main__":
         # Check for a valid search
         if len(articles) > 0:
             # If it's valid, then show the response and ask them if they want to more about the question they asked.
-            print(articles[random.randint(0, len(articles)/10)])  # Need to format this response
+            print(articles[random.randint(0, len(articles)//10)])  # Need to format this response
             # Ask the user if they want to know more facts about the previous question
             print("\nGBB: Do you want to know more about this?\n")
             user_resp = input(name + ": ")
@@ -182,7 +182,7 @@ if __name__ == "__main__":
 
                 if len(news) > 0:
                     # If it's valid, then show the response and ask them if they want to more about the question they asked.
-                    print(news[random.randint(0, len(news) / 10)])  # Need to format this response
+                    print(news[random.randint(0, len(news) // 10)])  # Need to format this response
                 print()
         else:
             print("GBB: Unfortunately, I am not aware of this.\n")
