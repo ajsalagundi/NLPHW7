@@ -67,7 +67,7 @@ def personal_questions(user):
             user['personal questions asked'].append(num)
             return questions[num]
         if len(answered) == len(questions.keys()):
-            return "Look's like I know you so well that I don't even need to ask you a question!"
+            return "GBB: Look's like I know you so well that I don't even need to ask you a question!"
 
 
 def notAFan_questions(user):
@@ -91,7 +91,7 @@ def notAFan_questions(user):
             user['personal questions asked'].append(num)
             return questions[num]
         if len(answered) == len(questions.keys()):
-            return "Look's like I know you so well that I don't even need to ask you a question! Type anything to learn more!"
+            return "GBB: Look's like I know you so well that I don't even need to ask you a question!"
 
 
 if __name__ == "__main__":
@@ -140,7 +140,7 @@ if __name__ == "__main__":
                 print("GBB: I\'m so glad to hear that! :) Please answer one more question before you go, so that I can remember you when you return!\n")
                 message = personal_questions(current_user)
                 print(message)
-                if message != "Look's like I know you so well that I don't even need to ask you a question!":
+                if message != "GBB: Look's like I know you so well that I don't even need to ask you a question!":
                     current_user['personal information'].append(input(name + ": "))
                 print("GBB: Thank you for taking my exit survey.\n")
                 print("GBB: I hope we can talk more about the Packers the next time we chat. :) \n")
@@ -153,7 +153,7 @@ if __name__ == "__main__":
                 print("GBB: I\'m so sorry to hear that. :( Please answer one more question before you go, so that I can remember you when you return! \n")
                 message = notAFan_questions(current_user)
                 print(message)
-                if message != "Look's like I know you so well that I don't even need to ask you a question!":
+                if message != "GBB: Look's like I know you so well that I don't even need to ask you a question!":
                     current_user['personal information'].append(input(name + ": "))
                 print("GBB: Thank you for taking my exit survey.\n")
                 print("GBB: I hope we can talk more about the Packers the next time we chat. :) \n")
@@ -224,7 +224,7 @@ if __name__ == "__main__":
                 print("GBB: Before you leave, please take my exit survey: ")
                 message = personal_questions(current_user)
                 print(message)
-                if message != "Look's like I know you so well that I don't even need to ask you a question!":
+                if message != "GBB: Look's like I know you so well that I don't even need to ask you a question!":
                     current_user['personal information'].append(input(name + ": "))
                 print("GBB: Thank you so much for using the GBB chatbot! Go Pack Go!")
 
