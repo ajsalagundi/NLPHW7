@@ -91,7 +91,7 @@ def notAFan_questions(user):
             user['personal questions asked'].append(num)
             return questions[num]
         if len(answered) == len(questions.keys()):
-            return "GBB: Look's like I know you so well that I don't even need to ask you a question!"
+            return "GBB: Looks like I know you so well that I don't even need to ask you a question! Type anything to proceed."
 
 
 if __name__ == "__main__":
